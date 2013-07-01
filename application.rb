@@ -8,6 +8,7 @@ class Bitly
     filename = 'config.yml'
     config = YAML.load_file filename
     @access_token = config['development']['access_token']
+    @colorize = Colorize.new
   end
 
   def get_url(phrase)
@@ -33,24 +34,33 @@ class Bitly
   end
 
   def display(response,phrase_type)
-    puts "\033[1;33;40m#{phrase_type.capitalize} Topics\033[0m"
+    puts @colorize.display "#{phrase_type.capitalize} Topics", :heading
     response['data']['phrases'].each do |data|
-      puts colorize_text(data['phrase']) + " " + colorize_link("http://bit.ly/" + data['ghashes'][0]['ghash'])
+      puts @colorize.display("#{data['phrase']} Topics", :text) + " " + @colorize.display("http://bit.ly/#{data['ghashes'][0]['ghash']}", :link)
     end
   end
 
   def display_error_message
-   puts "\033[1;31mUnable to connect to the Server\033[0m\n"
+   puts @colorize.display 'Unable to connect to the Server', :error
    exit
   end
 
-  def colorize_text(text)
-    "\033[1;32;40m#{text}\033[0m"
-  end
-
-  def colorize_link(link)
-    "\033[4;31;48m#{link}\033[0m"
-  end
 end 
+
+class Colorize
+  def display(text, element)
+    color_code = case element
+      when :text
+        ['1;','32;','40m']
+      when :heading
+        ['1;','33;','40m']
+      when :error
+        ['1;','','31m']
+      when :link
+        ['4;','31;','48m']
+    end
+    "\033[#{color_code[0]}#{color_code[1]}#{color_code[2]}#{text}\033[0m"
+  end
+end  
 
 Bitly.new.get_topics ['bursting', 'hot']
