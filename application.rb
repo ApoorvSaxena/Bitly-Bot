@@ -1,13 +1,10 @@
-require 'rest_client'
-require 'json'
-require 'yaml'
+filename = File.expand_path File.dirname(__FILE__) + '/config.yml'
+$config = YAML.load_file filename
 
 class Bitly
 
   def initialize()
-    filename = 'config.yml'
-    config = YAML.load_file filename
-    @access_token = config['development']['access_token']
+    @access_token = $config['access_token']
     @colorize = Colorize.new
   end
 
@@ -15,7 +12,6 @@ class Bitly
     @base_url = "https://api-ssl.bitly.com/v3/realtime/#{phrase}_phrases?access_token=#{@access_token}"
   end
 
-  #Get the JSON Response
   def get_topics(phrase_types)
     threads = []
     phrase_types.each do |phrase_type|
@@ -34,9 +30,10 @@ class Bitly
   end
 
   def display(response,phrase_type)
+    puts GrowlNotifications.display "#{phrase_type.capitalize} Topics"
     puts @colorize.display "#{phrase_type.capitalize} Topics", :heading
     response['data']['phrases'].each do |data|
-      puts @colorize.display("#{data['phrase']} Topics", :text) + " " + @colorize.display("http://bit.ly/#{data['ghashes'][0]['ghash']}", :link)
+      puts @colorize.display("#{data['phrase']}", :text) + " " + @colorize.display("http://bit.ly/#{data['ghashes'][0]['ghash']}", :link)
     end
   end
 
@@ -63,4 +60,13 @@ class Colorize
   end
 end  
 
-Bitly.new.get_topics ['bursting', 'hot']
+class GrowlNotifications
+  def self.display(text)
+    "\e]9;#{text}\007"
+  end
+end
+
+loop do
+  Bitly.new.get_topics ['bursting', 'hot']
+  sleep $config['delay'] * 60 # delaying in minutes
+end
