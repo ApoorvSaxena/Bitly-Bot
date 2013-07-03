@@ -2,6 +2,7 @@ GEM
   remote: https://rubygems.org/
   specs:
     daemons (1.1.9)
+    json (1.7.7)
     mime-types (1.23)
     rest-client (1.6.7)
       mime-types (>= 1.16)
@@ -11,4 +12,5 @@ PLATFORMS
 
 DEPENDENCIES
   daemons
+  json
   rest-client

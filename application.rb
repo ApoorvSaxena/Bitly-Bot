@@ -19,6 +19,10 @@ class Bitly
       threads << Thread.new(base_url, phrase_type) do |url, phrase_type|
         begin
           response = JSON.parse RestClient.get url
+          if response['status_code'] != 200
+            puts  @colorize.display 'Error: ' + response['status_txt'] + '\n', :error
+            exit
+          end
           display response,phrase_type
         rescue
           display_error_message
