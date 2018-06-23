@@ -4,7 +4,7 @@ GEM
     daemons (1.1.9)
     json (1.7.7)
     mime-types (1.23)
-    rest-client (1.6.7)
+    rest-client (~> 1.7.3)
       mime-types (>= 1.16)
 
 PLATFORMS
